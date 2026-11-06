@@ -1,0 +1,9 @@
+{
+  "name": "jido-helper",
+  "version": "0.1.0",
+  "description": "학생지도도우미 - 학생 정보로 Codex·Gemini·Claude 세 곳에서 지도 방법과 멘트를 추천받는 데스크톱 앱",
+  "main": "main.js",
+  "scripts": { "start": "electron ." },
+  "devDependencies": { "electron": "33.2.1" },
+  "allowScripts": { "electron@33.2.1": true }
+}

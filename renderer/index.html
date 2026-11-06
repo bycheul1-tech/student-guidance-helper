@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<title>학생지도도우미</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">학생지도도우미</div>
+    <input id="search" class="search" placeholder="학생 찾기">
+    <button id="newStudent" class="btn primary block">+ 새 학생</button>
+    <ul id="studentList" class="slist"></ul>
+    <button id="openSettings" class="btn ghost block small">설정</button>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="empty" id="emptyView">
+      <h2>왼쪽에서 학생을 고르거나 새 학생을 만드십시오.</h2>
+      <p>학생 정보는 고칠 때마다 저장되고, 추천 받은 기록도 학생마다 계속 쌓입니다.</p>
+    </div>
+
+    <div class="work hidden" id="workView">
+      <section class="col form" id="formCol">
+        <div class="colhead">
+          <h2 id="stTitle">학생 정보</h2>
+          <span class="saved" id="savedMark"></span>
+          <button class="btn ghost small danger" id="delStudent">학생 삭제</button>
+        </div>
+
+        <div class="card">
+          <h3>기본 정보</h3>
+          <div class="grid2">
+            <label>이름<input data-f="name" placeholder="앱 안에서만 보임"></label>
+            <label>AI 에 보낼 호칭<input data-f="alias" placeholder="비우면 '학생'으로 보냄"></label>
+            <label>성별<select data-f="gender"><option value="">모름</option><option>남</option><option>여</option></select></label>
+            <label>학년<select data-f="grade" id="gradeSel"></select></label>
+            <label>재원 기간(개월)<input data-f="months" type="number" min="0" max="240"></label>
+            <label>MBTI <small>참고만</small><input data-f="mbti" maxlength="4" placeholder="예: ENFP"></label>
+            <label>생년월일 <small>사주 참고만</small><input data-f="birth" type="date"></label>
+            <label>태어난 시간 <small>몰라도 됨</small><input data-f="birthTime" placeholder="예: 오전 7시"></label>
+          </div>
+          <div class="agehint" id="ageHint"></div>
+        </div>
+
+        <div class="card">
+          <h3>성격·생활 척도 <small>아는 것만 누르십시오. 다시 누르면 비워집니다.</small></h3>
+          <div id="scales"></div>
+        </div>
+
+        <div class="card">
+          <h3>선택 항목</h3>
+          <div id="choices"></div>
+          <div id="multis"></div>
+          <label class="full">가정 상황 메모 <small>AI 에는 판단에 필요한 만큼만 적으십시오</small>
+            <textarea data-f="familyNote" rows="2"></textarea></label>
+        </div>
+
+        <div class="card">
+          <h3>학업 상태</h3>
+          <textarea data-f="studyNote" rows="3" placeholder="예: 어휘는 되는데 구문 해석에서 막힘, 서술형 영작 약함, 단어 시험 70점대"></textarea>
+        </div>
+
+        <div class="card">
+          <h3>선생님 관찰 메모 <small>추천의 제일 큰 근거</small></h3>
+          <textarea data-f="observation" rows="6" placeholder="예: 쉬는 시간엔 친구들이랑 잘 떠드는데 수업 중에 지목하면 얼굴 빨개짐. 숙제는 3주째 반만 해 옴. 칭찬하면 표정이 확 밝아짐."></textarea>
+        </div>
+      </section>
+
+      <section class="col ask">
+        <div class="card sticky">
+          <h3>이번에 하고 싶은 것</h3>
+          <div class="kinds" id="kinds"></div>
+          <div class="kindhint" id="kindHint"></div>
+          <label class="full">지금 상황
+            <textarea id="situation" rows="4" placeholder="예: 숙제를 계속 반만 해 와서 습관을 잡아 주고 싶음. 혼내면 위축될 것 같아서 고민."></textarea></label>
+          <label class="full">생각 중인 방법 <small>한 줄에 하나씩. 세 AI 가 하나씩 평가함</small>
+            <textarea id="options" rows="3" placeholder="숙제를 절반으로 줄여 주고 대신 다 해 오게 하기&#10;수업 끝나고 따로 불러서 얘기하기&#10;간식 하나 주면서 넌지시 말하기"></textarea></label>
+          <div class="models" id="modelPick"></div>
+          <div class="row">
+            <button class="btn primary" id="runBtn">추천 받기</button>
+            <button class="btn ghost small" id="previewBtn">AI 에 보낼 글 보기</button>
+          </div>
+          <div class="fillinfo" id="fillInfo"></div>
+        </div>
+
+        <div class="card">
+          <h3>상담 기록</h3>
+          <ul class="hlist" id="historyList"></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- 결과 모달 -->
+<div class="modal hidden" id="resultModal">
+  <div class="mbox">
+    <div class="mhead">
+      <div>
+        <div class="mtitle" id="mTitle"></div>
+        <div class="msub" id="mSub"></div>
+      </div>
+      <button class="x" data-close>✕</button>
+    </div>
+    <div class="cards4" id="cards4"></div>
+    <div class="outcome">
+      <div class="fu">
+        <div class="fuhead">텔레그램으로 '해 보셨습니까?' 물어보기 <span id="fuState" class="fustate"></span></div>
+        <div class="row">
+          <span class="chip" data-days="3">3일 뒤</span><span class="chip" data-days="7">1주 뒤</span><span class="chip" data-days="14">2주 뒤</span>
+          <input type="date" id="fuDate">
+          <span class="chip" data-days="0">안 물어봄</span>
+        </div>
+      </div>
+      <label>해 본 결과 <small>봇 답장이 여기 들어옴 · 직접 적어도 됨 · 다음 추천에 반영됨</small>
+        <div class="row"><select id="outcomeResult"><option value="">결과 고르기</option><option value="good">효과 있음</option><option value="some">조금 있음</option><option value="none">효과 없음</option></select>
+        <textarea id="outcomeText" rows="1" placeholder="예: 숙제 줄여 주니 2주 연속 다 해 옴. 간식은 별 반응 없었음."></textarea></div></label>
+      <button class="btn small" id="outcomeSave">결과 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 글 보기 / 설정 모달 -->
+<div class="modal hidden" id="textModal">
+  <div class="mbox narrow">
+    <div class="mhead"><div class="mtitle" id="tTitle"></div><button class="x" data-close>✕</button></div>
+    <div id="tBody" class="tbody"></div>
+  </div>
+</div>
+
+<script src="../lib/fields.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
